@@ -85,3 +85,13 @@ proc.export_image(outfile=outname+'.image.pbcor.tt0.rms.subim.fits', img_type='r
 for i in files:
     im = bdsf.process_image(i, rms_box=(200,50), frequency=3e9)
     im.write_catalog(outfile=i[:-10]+'catalog.fits', format='fits', incl_empty=True, catalog_type='srl')
+
+#convolve individual images, save files, and process
+convolved = [np.expand_dims(gaussian_filter(i[0], sigma=convwidth/2.35, mode='constant'), axis=(0,1)) for i in tuples]
+for i, j, k in zip(convolved, hdus, files):
+    j.header.set("BMAJ", convwidth/3600, "[deg]")
+    j.header.set("BMIN", convwidth/3600, "[deg]")
+    fits.writeto('blurredsingle.fits', data=i, header=j.header, overwrite=True)
+    
+    im = bdsf.process_image('blurredsingle.fits', rms_box=(200,50), frequency=3e9)
+    im.write_catalog(outfile=k[:-10]+'catalog.convolved.fits', format='fits', incl_empty=True, catalog_type='srl')
