@@ -1,0 +1,9 @@
+Bootstrap: docker
+From: python:3.11
+
+
+%post
+    python3 -m pip install numpy==1.26.4 scipy astropy reproject boost
+    apt-get update -y --allow-insecure-repositories
+    apt-get install python3-casacore -y --allow-unauthenticated
+    pip install bdsf

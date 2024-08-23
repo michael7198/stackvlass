@@ -1,0 +1,33 @@
+# submit-20240619.sub
+
+# Provide HTCondor with the name of your .sif file and universe information
+container_image = file:///staging/mnmartinez/stacking.sif
+
+plusone = $(Process) + 1
+NewProcess = $INT(plusone,%d)
+
+executable = stack_wrapper.sh
+arguments = $(NewProcess)
+ 
+# Include other files that need to be transferred here.
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT_OR_EVICT
+
+transfer_input_files = stack_vlass.py, output.txt
+
+
+log = job_$(Cluster)_$(NewProcess).log
+error = job_$(Cluster)_$(NewProcess).err
+output = job_$(Cluster)_$(NewProcess).out
+
+requirements = (HasCHTCStaging == true)
+
+# Make sure you request enough disk for the container image in addition to your other input files
+request_cpus = 1
+request_memory = 4GB
+request_disk = 10GB      
+
+#stream_output = True
+#stream_error = True
+
+queue 2 
